@@ -1,0 +1,12 @@
+#goal definition
+string action
+string itP
+string navstrategy
+geometry_msgs/Point itP_point
+
+---
+#result definition
+int32 result
+---
+#feedback
+int32 feedback

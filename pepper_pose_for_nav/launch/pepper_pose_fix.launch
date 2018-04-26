@@ -1,0 +1,18 @@
+
+<launch>
+  <env name="PYTHONPATH" value="$(env PYTHONPATH)" /> 
+
+  <arg name="nao_ip" default="$(optenv NAO_IP 127.0.0.1)" />
+  <arg name="nao_port" default="$(optenv NAO_PORT 9559)" />
+
+  <node pkg="pepper_pose_for_nav" type="FixHeadPosition.py" name="fix_head_position" required="false" output="screen">
+    <param name="ip" value="$(arg nao_ip)"/>
+    <param name="port" value="$(arg nao_port)"/>
+  </node>
+
+  <node pkg="pepper_pose_for_nav" type="ChangeCollisionDistance.py" name="ChangeCollisionDistance" required="false" output="screen">
+    <param name="ip" value="$(arg nao_ip)"/>
+    <param name="port" value="$(arg nao_port)"/>
+  </node>
+  
+</launch>
