@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package>
-  <name>pepper_pose_for_nav</name>
+  <name>pepper_door_open_detector</name>
   <version>1.0.0</version>
-  <description>Pepper pose for correct navigation including head fix pose</description>
+  <description>Openning Door detection for pepper robocup start</description>
 
   <maintainer email="jacques.saraydaryan@cpe.fr">jsarayaryan</maintainer>
 
@@ -20,5 +20,7 @@
   <run_depend>tf</run_depend>
   <run_depend>rospy</run_depend>
   <run_depend>message_runtime</run_depend>
+
+  <build_depend>message_generation</build_depend>
 
 </package>
