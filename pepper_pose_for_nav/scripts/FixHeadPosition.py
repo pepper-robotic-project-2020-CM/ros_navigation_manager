@@ -6,9 +6,10 @@ import sys
 import time
 import rospy
 from pepper_pose_for_nav.srv import FixHeadAtPosition
+from geometry_msgs.msg import Twist
 
 class HeadFix():
-
+    _coutinuous_fix=True
 
     def __init__(self,session):
         """
@@ -29,28 +30,46 @@ class HeadFix():
         self._error=0.1
         #pitch_value=0.3
         self._pitch_value=0.0
+        self._yaw_value=0.0
         self._isEnd=False
         #declare ros service 
         self.setHeadPositionSrv = rospy.Service('fix_head_pose_srv', FixHeadAtPosition, self.setHeadPositionSrvCallback)
+        self.cmdSub=rospy.Subscriber("cmd_vel", Twist, self.cmdVelCallBack)
 
 
     def fixHead(self):
         while not rospy.is_shutdown():
-            headYawPos = self._memory_service.getData("Device/SubDeviceList/HeadYaw/Position/Sensor/Value")
-            headPitchPos = self._memory_service.getData("Device/SubDeviceList/HeadPitch/Position/Sensor/Value")
-            print("headYawPos:"+str(headYawPos)+",headPitchPos:"+str(headPitchPos))
-            #if abs(headPitchPos)>error or abs(headYawPos)>error:
-            if headPitchPos>(self._pitch_value+self._error) or headPitchPos<(self._pitch_value-self._error)  or abs(headYawPos)>self._error:
-                self._motion_service.setAngles("HeadYaw", 0.0, self._fractionMaxSpeed) 
-                self._motion_service.setAngles("HeadPitch", self._pitch_value, self._fractionMaxSpeed) ## fix head on the horizon 0.0, fix head looking for obstacle 0.3
-                print("update head")
-
+            if self._coutinuous_fix:
+                headYawPos = self._memory_service.getData("Device/SubDeviceList/HeadYaw/Position/Sensor/Value")
+                headPitchPos = self._memory_service.getData("Device/SubDeviceList/HeadPitch/Position/Sensor/Value")
+                print("headYawPos:"+str(headYawPos)+",headPitchPos:"+str(headPitchPos))
+                #if abs(headPitchPos)>error or abs(headYawPos)>error:
+                if self.needToFixHead(headPitchPos,headYawPos):
+                    self._motion_service.setAngles("HeadYaw", self._yaw_value, self._fractionMaxSpeed) 
+                    self._motion_service.setAngles("HeadPitch", self._pitch_value, self._fractionMaxSpeed) ## fix head on the horizon 0.0, fix head looking for obstacle 0.3
+                    print("update head")
+                
             time.sleep(0.1)
+
+    def needToFixHead(self, headPitchPos,headYawPos):
+        result=False
+        if headPitchPos>(self._pitch_value+self._error) or headPitchPos<(self._pitch_value-self._error):
+            result=True
+        if headYawPos>(self._yaw_value+self._error) or headYawPos<(self._yaw_value-self._error):
+            result=True
+        return result
 
     def setHeadPositionSrvCallback(self,req):
         self._pitch_value=req.pitch_value
+        self._yaw_value=req.yaw_value
+        self._coutinuous_fix=req.continuous_fix
         return True
-  
+
+    def cmdVelCallBack(self, data):
+        pass
+
+
+
 
 if __name__ == "__main__":
     rospy.init_node('pepper_head_pose_fix')
