@@ -5,7 +5,7 @@
   <arg name="nao_ip" default="$(optenv NAO_IP 127.0.0.1)" />
   <arg name="nao_port" default="$(optenv NAO_PORT 9559)" />
 
-  <node pkg="pepper_pose_for_nav" type="FixHeadPosition.py" name="fix_head_position" required="false" output="screen">
+  <node pkg="pepper_pose_for_nav" type="MoveHeadPosition.py" name="fix_head_position" required="false" output="screen">
     <param name="ip" value="$(arg nao_ip)"/>
     <param name="port" value="$(arg nao_port)"/>
   </node>

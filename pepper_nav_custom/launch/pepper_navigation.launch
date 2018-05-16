@@ -4,7 +4,11 @@
   <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)" />
   
   <!-- start 3d information used by worldmanagement and navigation for 3d costmap update -->
-  <include file="$(find pepper_nav_custom)/launch/depth_points.launch"/>
+  <!-- <include file="$(find pepper_nav_custom)/launch/depth_points.launch"/> -->
+
+  <!-- convert depth img to pcl for naivgation and costmap on /points -->
+  <include file="$(find pepper_nav_custom)/launch/depth_pcl_points.launch"/>
+
 
 
  <remap from="scan" to="/pepper_robot/naoqi_driver/laser"/>

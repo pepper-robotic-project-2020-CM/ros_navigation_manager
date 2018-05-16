@@ -10,6 +10,9 @@ from geometry_msgs.msg import Twist
 
 class HeadFix():
     _coutinuous_fix=True
+    HEAD_PITCH_OBSTACLE=0.6
+    HEAD_YAW_OBSTACLE_LEFT=0.7
+    HEAD_YAW_OBSTACLE_RIGHT=-0.7
 
     def __init__(self,session):
         """
@@ -18,22 +21,26 @@ class HeadFix():
         # Get the service ALMotion.
         self._motion_service  = session.service("ALMotion")
         self._memory_service = session.service("ALMemory")
+
         self._autolife_service = session.service("ALAutonomousLife")
-        self._autolife_service.setState('disabled')
+        if  self._autolife_service.getState() != 'disabled':
+		    self._autolife_service.setState('disabled')
+        
         self._posture_service = session.service("ALRobotPosture")
+        #if self._posture_service.getPostureFamily() != "Stand" and self._posture_service.getPostureFamily() != "Standing":
         self._posture_service.goToPosture("Stand",0.3)
 
 
         self._fractionMaxSpeed = 0.2
-        self._motion_service.setStiffnesses("HEAD", 1.0)
-        self._motion_service.setStiffnesses("TORSO", 1.0)
+        self._motion_service.setStiffnesses("HEAD", 0.8)
+        self._motion_service.setStiffnesses("TORSO", 0.8)
         self._error=0.1
         #pitch_value=0.3
         self._pitch_value=0.0
         self._yaw_value=0.0
         self._isEnd=False
         #declare ros service 
-        self.setHeadPositionSrv = rospy.Service('fix_head_pose_srv', FixHeadAtPosition, self.setHeadPositionSrvCallback)
+        self.setHeadPositionSrv = rospy.Service('move_head_pose_srv', FixHeadAtPosition, self.setHeadPositionSrvCallback)
         self.cmdSub=rospy.Subscriber("cmd_vel", Twist, self.cmdVelCallBack)
 
 
@@ -42,12 +49,11 @@ class HeadFix():
             if self._coutinuous_fix:
                 headYawPos = self._memory_service.getData("Device/SubDeviceList/HeadYaw/Position/Sensor/Value")
                 headPitchPos = self._memory_service.getData("Device/SubDeviceList/HeadPitch/Position/Sensor/Value")
-                print("headYawPos:"+str(headYawPos)+",headPitchPos:"+str(headPitchPos))
-                #if abs(headPitchPos)>error or abs(headYawPos)>error:
+                #rospy.loginfo("headYawPos:"+str(headYawPos)+",headPitchPos:"+str(headPitchPos))
                 if self.needToFixHead(headPitchPos,headYawPos):
                     self._motion_service.setAngles("HeadYaw", self._yaw_value, self._fractionMaxSpeed) 
                     self._motion_service.setAngles("HeadPitch", self._pitch_value, self._fractionMaxSpeed) ## fix head on the horizon 0.0, fix head looking for obstacle 0.3
-                    print("update head")
+                    rospy.loginfo("update head, headYawPos:"+str(headYawPos)+",headPitchPos:"+str(headPitchPos))
                 
             time.sleep(0.1)
 
@@ -70,14 +76,24 @@ class HeadFix():
         return True
 
     def cmdVelCallBack(self, data):
-        pass
 
+        self._pitch_value=self.HEAD_PITCH_OBSTACLE
 
+        # if the cmd turn on the right
+        if data.angular.z <0:
+            self._yaw_value=self.HEAD_YAW_OBSTACLE_RIGHT
+        
+        # if the cmd turn on the left
+        elif data.angular.z >0:
+            self._yaw_value=self.HEAD_YAW_OBSTACLE_LEFT
+
+        elif data.angular.z == 0:
+            self._yaw_value= 0.0
 
 
 if __name__ == "__main__":
     rospy.init_node('pepper_head_pose_fix')
-    ip=rospy.get_param('~ip',"127.0.0.1")
+    ip=rospy.get_param('~ip',"192.168.0.189")
     port=rospy.get_param('~port',9559)
    
     session = qi.Session()

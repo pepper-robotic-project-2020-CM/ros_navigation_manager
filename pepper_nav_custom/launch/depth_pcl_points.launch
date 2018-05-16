@@ -12,6 +12,7 @@
     <remap from="image_rect" to="/pepper_robot/naoqi_driver/camera/depth/image_raw"/>
     <remap from="camera_info" to="/pepper_robot/naoqi_driver/camera/depth/camera_info"/>
 </node>
+
  
 
 </launch>

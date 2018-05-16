@@ -38,9 +38,12 @@ if __name__=="__main__":
 
 	motion =  session.service("ALMotion")
 	autolife = session.service("ALAutonomousLife")
-	autolife.setState('disabled')
+	if autolife.getState() is not 'disabled':
+		autolife.setState('disabled')
+	
 	posture = session.service("ALRobotPosture")
-	posture.goToPosture("Stand",0.3)
+	if posture.getPostureFamily() is not "Stand":
+		posture.goToPosture("Stand",0.3)
 
 	rospy.Subscriber('/pepper_robot/camera/depth/camera_info', CameraInfo, main, queue_size=1)
 	rospy.spin()
