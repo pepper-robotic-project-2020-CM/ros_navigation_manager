@@ -63,6 +63,10 @@ class HeadFix():
         self._pitch_value=req.pitch_value
         self._yaw_value=req.yaw_value
         self._coutinuous_fix=req.continuous_fix
+
+        if not self._coutinuous_fix:
+            self._motion_service.setAngles("HeadYaw", self._yaw_value, self._fractionMaxSpeed) 
+            self._motion_service.setAngles("HeadPitch", self._pitch_value, self._fractionMaxSpeed)
         return True
 
     def cmdVelCallBack(self, data):
