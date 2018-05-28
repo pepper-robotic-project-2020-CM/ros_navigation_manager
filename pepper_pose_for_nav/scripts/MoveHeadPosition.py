@@ -5,7 +5,7 @@ import argparse
 import sys
 import time
 import rospy
-from pepper_pose_for_nav.srv import FixHeadAtPosition
+from pepper_pose_for_nav.srv import MoveHeadAtPosition
 from geometry_msgs.msg import Twist
 
 class HeadFix():
@@ -40,7 +40,7 @@ class HeadFix():
         self._yaw_value=0.0
         self._isEnd=False
         #declare ros service 
-        self.setHeadPositionSrv = rospy.Service('move_head_pose_srv', FixHeadAtPosition, self.setHeadPositionSrvCallback)
+        self.setHeadPositionSrv = rospy.Service('move_head_pose_srv', MoveHeadAtPosition, self.setHeadPositionSrvCallback)
         self.cmdSub=rospy.Subscriber("cmd_vel", Twist, self.cmdVelCallBack)
 
 

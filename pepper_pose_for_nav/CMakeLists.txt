@@ -10,7 +10,7 @@ find_package(catkin REQUIRED COMPONENTS rospy sensor_msgs std_msgs tf dynamic_re
  #Generate services in the 'srv' folder
  add_service_files(
    FILES
-   FixHeadAtPosition.srv
+   MoveHeadAtPosition.srv
  )
 
 ## Generate added messages and services with any dependencies listed here

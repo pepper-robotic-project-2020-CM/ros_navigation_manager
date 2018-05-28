@@ -108,11 +108,14 @@ class Nm:
         isActionSucceed=False
         try:
             # call the process associating to the action
-            # caution msg is publish to the gm_answer... needed ??
             #isActionSucceed=self._actionToServiceMap[data.action](data)
             ### FIXME need to rework all _actionToServiceMap call...
-            current_navigationStrategy=self._navigationStrategyMaps[goal.navstrategy]  
-            isActionSucceed=self.navigateToGoal("None",goal.itP,goal.action,current_navigationStrategy,goal.itP_point.x,goal.itP_point.y)
+            if goal.action == "NP" :
+                current_navigationStrategy=self._navigationStrategyMaps[goal.navstrategy]  
+                isActionSucceed=self.navigateToGoal("None",goal.itP,goal.action,current_navigationStrategy,goal.itP_point.x,goal.itP_point.y)
+            elif goal.action == "NT":
+                 self.turnAround(float(math.pi))
+                 isActionSucceed=True
         except Exception as e:
             rospy.logwarn("unable to find or launch function corresponding to the action %s:, error:[%s]",str(goal.action), str(e))
         if isActionSucceed:
