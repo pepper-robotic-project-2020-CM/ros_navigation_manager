@@ -7,6 +7,8 @@ This package provides tools and configuration to adapt ros navigation stack to t
 ## 4.  Context and Strategy 
 
 ## 3.  Configuration 
+### costmap_common_params.yaml
+below only main differences added to the costmap_common_params
 
 ```python
 ...
@@ -37,7 +39,7 @@ obstacle_layer:
     min_obstacle_height: 0.2 
     max_obstacle_height: 2.0
     observation_persistence: 0.5
-    obstacle_range: 0.75 #0.75
+    obstacle_range: 0.75 
     raytrace_range: 2.0
     inf_is_valid: false
     
@@ -49,7 +51,7 @@ obstacle_layer:
     clearing: true
     obstacle_range: 2.0  #to remove if needed or set to 1.5 to be safe, greater distance lead to faster move but with more risk of collision
     inf_is_valid: true
-    min_obstacle_height: -0.15 #scan data's real frame is head but it is broadcasted as base_link.
+    min_obstacle_height: -0.15
     max_obstacle_height: 2.0
 
 # source coming from the robot laser, only use to clean obstacle on 3.0 range
