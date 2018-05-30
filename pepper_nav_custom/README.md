@@ -4,9 +4,13 @@
 This package provides tools and configuration to adapt ros navigation stack to the pepper robot
 
 
+## 3. Authors
+* Jacques Saraydaryan
+
+
 ## 4.  Context and Strategy 
 
-## 3.  Configuration 
+## 5.  Configuration 
 ### costmap_common_params.yaml
 below only main differences added to the costmap_common_params
 
