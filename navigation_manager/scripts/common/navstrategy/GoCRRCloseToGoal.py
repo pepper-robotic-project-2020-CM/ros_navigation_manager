@@ -47,6 +47,8 @@ class GoCRRCloseToGoal(GoCleanRetryReplayLastNavStrategy,object):
         self.setMaxTimeElapsedPerGoal(self.MAX_TIME_ELAPSED_PER_GOAL)
         self._maxNbRetryForValidMakePlan=self.MAX_NB_RETRY_FOR_VALID_MAKE_PLAN
         self._nbRetryForValidMakePlan=0
+        #FIXME disable replay last command
+        self._isReplyLastCmdActivated=False
 
     def reset(self):
         super(GoCRRCloseToGoal, self).reset()

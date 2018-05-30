@@ -1,6 +1,6 @@
 <launch>
   
-  <arg name="map_file" default="$(find pepper_nav_custom)/maps/TurtlebotDrobotcup.yaml"/>
+  <arg name="map_file" default="$(find pepper_nav_custom)/maps/humanoo_map.yaml"/>
   <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)" />
   
   <!-- start 3d information used by worldmanagement and navigation for 3d costmap update -->

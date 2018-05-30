@@ -27,6 +27,7 @@ class GoCleanRetryReplayLastNavStrategy(AbstractNavStrategy):
     _maxCostMapTolerance=70
     _stopCurrentNav=False
     _current_goalhandle=False
+    _isReplyLastCmdActivated=True
 
     def __init__(self,actMove_base):
         AbstractNavStrategy.__init__(self,actMove_base)
@@ -179,6 +180,8 @@ class GoCleanRetryReplayLastNavStrategy(AbstractNavStrategy):
 
     def reverseLastTwist(self):
         try:
+            if not self._isReplyLastCmdActivated:
+                return
             self._isReversePathActivated=True
             #set last twist cmd stop time with current date
             try:

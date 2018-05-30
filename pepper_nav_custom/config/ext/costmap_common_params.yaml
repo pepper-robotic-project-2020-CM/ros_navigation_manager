@@ -22,7 +22,7 @@ obstacle_layer:
   z_resolution: 0.1
   z_voxels: 10
   publish_voxel_map: false
-  observation_sources:  depth_pcl scan2 #scan3
+  observation_sources:  depth_pcl scan2 scan3
   depth_pcl:
     data_type: PointCloud2
     topic:  /points
@@ -40,18 +40,19 @@ obstacle_layer:
     topic: /pepper_robot/naoqi_driver/laser #/pepper_robot/naoqi_driver/laser #scan or /scan?
     marking: true
     clearing: true
+    obstacle_range: 2.0  #to remove if needed or set to 1.5 to be safe, greater distance lead to faster move but with more risk of collision
     inf_is_valid: true
     min_obstacle_height: -0.15 #scan data's real frame is head but it is broadcasted as base_link.
     max_obstacle_height: 2.0
 
-#scan3:
-#    data_type: LaserScan
-#    topic: /pepper_scan_costmap #/pepper_robot/naoqi_driver/laser #scan or /scan?
-#    marking: false
-#    clearing: true
-#    inf_is_valid: true
-#    min_obstacle_height: -0.15 #scan data's real frame is head but it is broadcasted as base_link.
-#    max_obstacle_height: 2.0
+scan3:
+    data_type: LaserScan
+    topic: /pepper_robot/naoqi_driver/laser #/pepper_scan_costmap #/pepper_robot/naoqi_driver/laser #scan or /scan?
+    marking: false
+    clearing: true
+    inf_is_valid: true
+    min_obstacle_height: -0.15 #scan data's real frame is head but it is broadcasted as base_link.
+    max_obstacle_height: 2.0
     
 #might able to add real laser data
 

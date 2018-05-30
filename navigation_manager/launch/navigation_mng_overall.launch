@@ -1,14 +1,24 @@
 <launch>
 
   <!-- Settings -->
-  <arg name="map_file" default="$(find pepper_nav_custom)/maps/TurtlebotDrobotcup.yaml"/>
+  <!-- <arg name="map_file" default="$(find pepper_nav_custom)/maps/TurtlebotDrobotcup.yaml"/> -->
+  <!-- <arg name="map_file" default="$(find pepper_nav_custom)/maps/hoomano_map.yaml"/> -->
+  <arg name="map_file" default="$(find pepper_nav_custom)/maps/test-3dfloor-hokuyo.yaml"/>
   <arg name="nao_ip" default="$(optenv NAO_IP 192.168.0.189)" />
   <arg name="nao_port" default="$(optenv NAO_PORT 9559)" />
   
+  
   <!-- All resources for navigation including, publishing map, get pcl from depht camera, move_base, amcl-->
-  <include file="$(find pepper_nav_custom)/launch/pepper_navigation.launch"/>
+  <include file="$(find pepper_nav_custom)/launch/pepper_navigation.launch">
+  <arg name="map_file" value="$(arg map_file)"/>
+  </include>
   <!-- Naoqi services for navigation, including reset of collision distance, disabling life mode, Fixing head for naovigation or other need -->
-  <include file="$(find pepper_pose_for_nav)/launch/pepper_pose_fix.launch"/>
+  <include file="$(find pepper_pose_for_nav)/launch/pepper_pose_fix.launch">
+    <arg name="nao_ip" value="$(arg nao_ip)"/>
+    <arg name="nao_port" value="$(arg nao_port)"/>
+    <arg name="isActivatedExtColl" value="False" />
+    <arg name="isActivatedAutoDiagReflex" value="False" />
+  </include>
   <!-- Open Door detection using by the general manager to start the scenario -->
   <include file="$(find pepper_door_open_detector)/launch/opening_door_detector.launch"/>
   <!-- Navigation Manager in charge of managing pepper navigation according navigation strategy -->
