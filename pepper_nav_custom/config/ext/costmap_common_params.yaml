@@ -25,19 +25,19 @@ obstacle_layer:
   observation_sources:  depth_pcl scan2 scan3
   depth_pcl:
     data_type: PointCloud2
-    topic:  /points
+    topic:  /pcl
     marking: true
     clearing: true
     min_obstacle_height: 0.2 #scan data's real frame is head but it is broadcasted as base_link.
     max_obstacle_height: 2.0
-    observation_persistence: 0.5
+    observation_persistence: 0.1
     obstacle_range: 0.75 #0.75
     raytrace_range: 2.0
     inf_is_valid: false
 
   scan2:
     data_type: LaserScan
-    topic: /pepper_robot/naoqi_driver/laser #/pepper_robot/naoqi_driver/laser #scan or /scan?
+    topic: /scan #/pepper_robot/naoqi_driver/laser #scan or /scan?
     marking: true
     clearing: true
     obstacle_range: 2.0  #to remove if needed or set to 1.5 to be safe, greater distance lead to faster move but with more risk of collision
@@ -47,7 +47,7 @@ obstacle_layer:
 
 scan3:
     data_type: LaserScan
-    topic: /pepper_robot/naoqi_driver/laser #/pepper_scan_costmap #/pepper_robot/naoqi_driver/laser #scan or /scan?
+    topic: /scan #/pepper_scan_costmap #/pepper_robot/naoqi_driver/laser #scan or /scan?
     marking: false
     clearing: true
     inf_is_valid: true
@@ -60,12 +60,12 @@ scan3:
 inflation_layer:
   enabled:              true
   cost_scaling_factor:  0.5  # exponential rate at which the obstacle cost drops off (default: 10) 0.5
-  inflation_radius:     0.12  # max. distance from an obstacle at which costs are incurred for planning paths. 0.12
+  inflation_radius:     0.22  # max. distance from an obstacle at which costs are incurred for planning paths. 0.12
 
 inflation_layer_local:
   enabled:              true
   cost_scaling_factor:  1.5  # exponential rate at which the obstacle cost drops off (default: 10) 5.0
-  inflation_radius:     0.5  # max. distance from an obstacle at which costs are incurred for planning paths. 0.12
+  inflation_radius:     0.12  # max. distance from an obstacle at which costs are incurred for planning paths. 0.12
 
 static_layer:
   enabled:              true #true

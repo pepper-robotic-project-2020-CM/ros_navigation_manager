@@ -7,11 +7,12 @@
   <!-- <include file="$(find pepper_nav_custom)/launch/depth_points.launch"/> -->
 
   <!-- convert depth img to pcl for naivgation and costmap on /points -->
-  <include file="$(find pepper_nav_custom)/launch/depth_pcl_points.launch"/>
+  <!--<include file="$(find pepper_nav_custom)/launch/depth_pcl_points.launch"/> -->
 
-
-
- <remap from="scan" to="/pepper_robot/naoqi_driver/laser"/>
+ <arg name="scan_topic" default=""/>
+ <arg name="pcl_topic" default=""/>
+ <remap from="scan" to="$(arg scan_topic)"/>
+ <remap from="pcl" to="$(arg pcl_topic)"/>
   <!-- <remap from="odom" to="/pepper_robot/naoqi_driver/odom"/> -->
   <!-- THEIR AMCL -->
 <!--   <arg name="custom_amcl_launch_file" default="$(find pepper_nav_custom)/launch/includes/ext/asus_xtion_pro_amcl.launch.xml"/>
@@ -33,9 +34,8 @@
   <arg name="initial_pose_y" default="0.0"/> 
   <arg name="initial_pose_a" default="0.0"/>
  
-   <arg name="odom_frame_id" default="/odom"/> 
-  <arg name="base_frame_id" default="/base_footprint"/>
-  <arg name="scan_topic" default="/pepper_robot/naoqi_driver/laser"/>
+  <arg name="odom_frame_id" default="/odom"/> 
+  <arg name="base_frame_id" default="/base_footprint"/>>
 
   <include file="$(arg custom_amcl_launch_file)">
     <arg name="initial_pose_x" value="$(arg initial_pose_x)"/>
@@ -54,7 +54,8 @@
   <!-- Move base -->
   <arg name="custom_param_file" default=""/>
   <include file="$(find pepper_nav_custom)/launch/includes/ext/pepper_move_base.xml">
-    <!-- <arg name="custom_param_file" value="$(arg custom_param_file)"/> -->
+    <arg name="laser_topic" value="$(arg scan_topic)"/>
+    <!--<arg name="custom_param_file" value="$(arg custom_param_file)"/> -->
   </include>
 
    

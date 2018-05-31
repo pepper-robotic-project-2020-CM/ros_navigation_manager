@@ -1,9 +1,10 @@
 
 <launch>
   
+  <arg name="scan_topic" default=""/>
   <node pkg="pepper_door_open_detector" type="OpeningDoorDetector.py" name="pepper_door_open_detector" required="false" output="screen">
     <param name="min_distance" value="0.8"/>
-    <remap from="/laser" to="/pepper_robot/naoqi_driver/laser"/>
+    <remap from="/laser" to="$(arg scan_topic)"/>
     <!-- <remap from="/start" to="/gm_start"/> -->
   </node>
 
