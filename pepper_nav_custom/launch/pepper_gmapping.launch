@@ -1,6 +1,6 @@
 <launch>
 <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen">
-      <remap from="scan" to="/pepper_robot/naoqi_driver/laser"/> 
+      <remap from="scan" to="/pepper_robot/laser"/> 
      <!-- <remap from="scan" to="/scan_multi"/> -->
       <remap from="odom" to="/pepper_robot/naoqi_driver/odom"/>
       <param name="map_update_interval" value="1.0"/>

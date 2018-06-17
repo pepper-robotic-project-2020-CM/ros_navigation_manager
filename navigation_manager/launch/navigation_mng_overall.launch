@@ -3,10 +3,11 @@
   <!-- Settings -->
   <!-- <arg name="map_file" default="$(find pepper_nav_custom)/maps/TurtlebotDrobotcup.yaml"/> -->
   <!-- <arg name="map_file" default="$(find pepper_nav_custom)/maps/hoomano_map.yaml"/> -->
-  <arg name="map_file" default="$(find pepper_nav_custom)/maps/test-3dfloor-hokuyo.yaml"/>
-  <arg name="nao_ip" default="$(optenv NAO_IP 192.168.0.189)" />
+  <arg name="map_file" default="$(find pepper_nav_custom)/maps/robocup_official_area2_v4_updated.yaml"/>
+  <arg name="nao_ip" default="$(optenv NAO_IP 169.254.85.11)" />
   <arg name="nao_port" default="$(optenv NAO_PORT 9559)" />
   <arg name="scan_topic" default="/pepper_robot/laser" />
+  <arg name="front_sonar" default="/pepper_robot/sonar/front" />
   <arg name="pcl_topic" default="/pepper_robot/camera/depth_registered/points" />
   
 
@@ -28,6 +29,7 @@
   <!-- Open Door detection using by the general manager to start the scenario -->
   <include file="$(find pepper_door_open_detector)/launch/opening_door_detector.launch">
      <arg name="scan_topic" value="$(arg scan_topic)"/>
+     <arg name="front_sonar" value="$(arg front_sonar)" />
   </include>
   <!-- Navigation Manager in charge of managing pepper navigation according navigation strategy -->
   <node pkg="navigation_manager" type="NavigationManager.py" name="navigation_manager" required="false" output="screen"></node>

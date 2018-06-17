@@ -4,7 +4,8 @@
   
     <!-- Starts up faster, but timestamps will be inaccurate. --> 
     <param name="calibrate_time" type="bool" value="false"/> 
-    <param name="frameid" value="HokuyoLaser_frame"/>
+    <!-- <param name="frameid" value="HokuyoLaser_frame"/> -->
+    <param name="frameid" value="laser"/>
     
     <!-- Set the port to connect to here -->
     <param name="port" type="string" value="/dev/ttyACM0"/> 
@@ -15,7 +16,10 @@
 <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen">
      <!-- <remap from="scan" to="/pepper_robot/naoqi_driver/laser"/> -->
       <!-- <remap from="scan" to="/scan_multi"/> -->
-     <!--  <remap from="odom" to="/pepper_robot/naoqi_driver/odom"/> -->
+      <!-- <remap from="odom" to="/pepper_robot/naoqi_driver/odom"/> -->
+      <remap from="odom" to="/pepper_robot/odom"/>
+
+
       <param name="map_update_interval" value="1.0"/>
       <param name="maxUrange" value="10.0"/>
       <param name="sigma" value="0.05"/>
