@@ -206,8 +206,8 @@ class Nm:
         # 1: load current orientation
         rospy.loginfo("In turn around function")
         now = rospy.Time.now()
-        self._tflistener.waitForTransform("/map", "base_link", now, rospy.Duration(2))
-        (trans, rot) = self._tflistener.lookupTransform("/map", "base_link", now)
+        self._tflistener.waitForTransform("/map", "base_footprint", now, rospy.Duration(2))
+        (trans, rot) = self._tflistener.lookupTransform("/map", "base_footprint", now)
         robotPose = Pose()
         robotPose.position.x = trans[0]
         robotPose.position.y = trans[1]
@@ -226,8 +226,9 @@ class Nm:
 
         #FIXME TO BE TESTED
         #strategy to apply
-        current_navigationStrategy=self._navigationStrategyMaps["Simple"]
+        current_navigationStrategy=self._navigationStrategyMaps["CRRCloseToGoal"]
         #Use a navigation strategy
+        rospy.loginfo(robotPose)
         result= current_navigationStrategy.goto(None,robotPose)
         return result
         

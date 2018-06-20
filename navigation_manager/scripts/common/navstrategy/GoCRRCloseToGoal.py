@@ -23,8 +23,8 @@ class GoCRRCloseToGoal(GoCleanRetryReplayLastNavStrategy,object):
     MAKE_PLAN_TOLERANCE=0.2 #in meter
     MAX_NB_RETRY=2
     MAX_TIME_ELAPSED_PER_GOAL=45
-    MAX_NB_RETRY_FOR_VALID_MAKE_PLAN=4
-    MAX_NB_RETRY_OVERALL=3
+    MAX_NB_RETRY_FOR_VALID_MAKE_PLAN=6
+    MAX_NB_RETRY_OVERALL=4
     TOLERANCE_TO_OBJECTIVE_STEP=0.8 # in meter
     SLEEP_AFTER_CLEAR_COSTMAP=1.0 # in second
 
@@ -71,6 +71,9 @@ class GoCRRCloseToGoal(GoCleanRetryReplayLastNavStrategy,object):
         #targetPose.position.y=0
         #END FIXME
 
+        #Save original goal
+        original_goal=targetPose
+
         #reset costmap before checking plan is valid
         self.resetCostMaps()
 
@@ -87,8 +90,13 @@ class GoCRRCloseToGoal(GoCleanRetryReplayLastNavStrategy,object):
             #if no valid plan abord
             if newgoal == None :
                 rospy.logwarn("Failed to get a valid plan")
-                return False
+                #return False
             targetPose=newgoal
+        
+        #No make plan available....
+        if targetPose == None :
+            rospy.logwarn("Failed to get a valid plan ----------------------> TRY ORIGINAL GOAL ...........")
+            targetPose=original_goal
 
         current_nb_newplan_recovery=0
         while current_nb_newplan_recovery < self.MAX_NB_RETRY_OVERALL and not rospy.is_shutdown():

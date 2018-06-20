@@ -12,8 +12,8 @@
  <arg name="scan_topic" default=""/>
  <arg name="pcl_topic" default=""/>
  <remap from="scan" to="$(arg scan_topic)"/>
- <remap from="pcl" to="$(arg pcl_topic)"/>
-  <!-- <remap from="odom" to="/pepper_robot/naoqi_driver/odom"/> -->
+ <!-- <remap from="pcl" to="$(arg pcl_topic)"/> -->
+<remap from="odom" to="/pepper_robot/odom"/>
   <!-- THEIR AMCL -->
 <!--   <arg name="custom_amcl_launch_file" default="$(find pepper_nav_custom)/launch/includes/ext/asus_xtion_pro_amcl.launch.xml"/>
   <arg name="initial_pose_x" default="0.0"/> 

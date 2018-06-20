@@ -53,7 +53,7 @@ class HeadFix():
                 if self.needToFixHead(headPitchPos,headYawPos):
                     self._motion_service.setAngles("HeadYaw", self._yaw_value, self._fractionMaxSpeed) 
                     self._motion_service.setAngles("HeadPitch", self._pitch_value, self._fractionMaxSpeed) ## fix head on the horizon 0.0, fix head looking for obstacle 0.3
-                    rospy.loginfo("update head, headYawPos:"+str(headYawPos)+",headPitchPos:"+str(headPitchPos))
+                    rospy.logdebug("update head, headYawPos:"+str(headYawPos)+",headPitchPos:"+str(headPitchPos))
                 
             time.sleep(0.1)
 
