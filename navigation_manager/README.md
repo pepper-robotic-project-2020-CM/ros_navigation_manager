@@ -106,22 +106,22 @@ from common.navstrategy.MyScenario import MyScenario
 
 ## 5. Node
 ### 5.1 Subscribed Topics
-* gm_bus_command ([robocup_msgs/gm_bus_msg](https://github.com/jacques-saraydaryan/robocup_pepper-robocup_msgs/blob/master/msg/gm_bus_msg.msg))
+* gm_bus_command ([robocup_msgs/gm_bus_msg](https://github.com/jacques-saraydaryan/robocup_pepper-robocup_msgs/blob/master/msg/gm_bus_msg.msg)):
 Use to get order from [general manager](https://github.com/jacques-saraydaryan/robocup_pepper-general_mng) (if topic used)
 
 
 ### 5.2 Publish Topics
-* gm_bus_command ([robocup_msgs/gm_bus_msg](https://github.com/jacques-saraydaryan/robocup_pepper-robocup_msgs/blob/master/msg/gm_bus_msg.msg))
+* gm_bus_command ([robocup_msgs/gm_bus_msg](https://github.com/jacques-saraydaryan/robocup_pepper-robocup_msgs/blob/master/msg/gm_bus_msg.msg)):
 Use to give feedback to [general manager](https://github.com/jacques-saraydaryan/robocup_pepper-general_mng) (if topic used)
 
 
 ### 5.3 Subscribed service
-* get_InterestPoint ([map_manager/getitP_service](https://github.com/jacques-saraydaryan/robocup_pepper-world_mng/blob/master/map_manager/srv/getitP_service.srv))
+* get_InterestPoint ([map_manager/getitP_service](https://github.com/jacques-saraydaryan/robocup_pepper-world_mng/blob/master/map_manager/srv/getitP_service.srv)):
 Use to translate given interest point key into map coodinates
 
 ### 5.4 Action
 
-* NavMng.action
+* NavMng.action:
 Use to get order from [general manager](https://github.com/jacques-saraydaryan/robocup_pepper-general_mng) (if action used)
 ```
 #goal definition
