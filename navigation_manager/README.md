@@ -30,16 +30,8 @@ __author__ = 'Jacques Saraydaryan'
 
 from AbstractNavStrategy import AbstractNavStrategy
 import rospy
-from geometry_msgs.msg import Pose, PoseWithCovarianceStamped, PoseWithCovariance, Point, Quaternion, Twist
-from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
-from std_srvs.srv import Empty
-from nav_msgs.msg import OccupancyGrid
-from nav_msgs.srv import GetMap
+from move_base_msgs.msg import MoveBaseGoal
 import time
-
-
-
-
 
 class MyStrategy(AbstractNavStrategy):
 
