@@ -1,4 +1,4 @@
-#!/usr/bin/env python  
+#!/usr/bin/env python
 import qi
 import sys
 import time
@@ -24,10 +24,10 @@ class MinFrontValueDetector():
 		self.min_distance=rospy.get_param('min_distance',0.8)
 		rospy.logdebug("Param: min_distance:"+str(self.min_distance))
 
-		#declare ros service 
+		#declare ros service
 		self.minFrontValueSrv = rospy.Service('min_front_value_srv', MinFrontValue, self.minFrontValueSrvCallback)
 
-   		self.publisher=rospy.Publisher("/start", String, queue_size=1)
+		self.publisher=rospy.Publisher("/start", String, queue_size=1)
 		rospy.Subscriber('/sonar', Range, self.sonarCallback, queue_size=1)
 		rospy.spin()
 
@@ -38,9 +38,8 @@ class MinFrontValueDetector():
 			self.publisher.publish("START")
 
 	def minFrontValueSrvCallback(self,req):
-			result=self.minValue
-			return {'value':result}
+		result=self.minValue
+		return {'value':result}
 
 if __name__=="__main__":
 	minFVD=MinFrontValueDetector()
-
