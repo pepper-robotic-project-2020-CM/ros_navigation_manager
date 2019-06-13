@@ -1,15 +1,15 @@
 <launch>
 
 <node name="hokuyo" pkg="hokuyo_node" type="hokuyo_node" respawn="false" output="screen">
-  
-    <!-- Starts up faster, but timestamps will be inaccurate. --> 
-    <param name="calibrate_time" type="bool" value="false"/> 
-    <!-- <param name="frameid" value="HokuyoLaser_frame"/> -->
-    <param name="frameid" value="laser"/>
-    
+
+    <!-- Starts up faster, but timestamps will be inaccurate. -->
+    <param name="calibrate_time" type="bool" value="false"/>
+    <param name="frameid" value="HokuyoLaser_frame"/>
+    <!-- <param name="frameid" value="laser"/> -->
+
     <!-- Set the port to connect to here -->
-    <param name="port" type="string" value="/dev/ttyACM0"/> 
-  
+    <param name="port" type="string" value="/dev/ttyACM0"/>
+
     <param name="intensity" type="bool" value="false"/>
   </node>
 
@@ -52,6 +52,6 @@
       <param name="occ_thresh" value="0.25"/>
       <!-- TO REMOVE PARAMETER -->
      <!-- <param name="maxUrange" value="2.0"/>-->
-      
+
     </node>
     </launch>
