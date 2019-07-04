@@ -25,15 +25,15 @@ class HeadFix():
         self._autolife_service = session.service("ALAutonomousLife")
         self._basic_awareness_service = session.service("ALBasicAwareness")
 
-        if self._autolife_service.getState() != 'disabled':
-            self._autolife_service.setState('disabled')
-
-        if self._autolife_service.getAutonomousAbilityEnabled("BasicAwareness") != 'disabled':
-            self._autolife_service.setAutonomousAbilityEnabled("BasicAwareness", False)
+        # self._autolife_service.setState('disabled')
 
         self._posture_service = session.service("ALRobotPosture")
         #if self._posture_service.getPostureFamily() != "Stand" and self._posture_service.getPostureFamily() != "Standing":
         self._posture_service.goToPosture("Stand",0.3)
+        self._autolife_service.setAutonomousAbilityEnabled("BasicAwareness", False)
+        self._autolife_service.setAutonomousAbilityEnabled("BackgroundMovement", False)
+        self._autolife_service.setAutonomousAbilityEnabled("ListeningMovement", False)
+        self._autolife_service.setAutonomousAbilityEnabled("SpeakingMovement", False)
 
         self._fractionMaxSpeed = 0.2
         self._motion_service.setStiffnesses("HEAD", 0.8)
