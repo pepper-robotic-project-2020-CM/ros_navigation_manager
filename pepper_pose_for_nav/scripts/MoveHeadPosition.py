@@ -25,7 +25,7 @@ class HeadFix():
         self._autolife_service = session.service("ALAutonomousLife")
         self._basic_awareness_service = session.service("ALBasicAwareness")
 
-        # self._autolife_service.setState('disabled')
+        self._autolife_service.setState('disabled')
 
         self._posture_service = session.service("ALRobotPosture")
         #if self._posture_service.getPostureFamily() != "Stand" and self._posture_service.getPostureFamily() != "Standing":
