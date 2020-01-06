@@ -15,6 +15,7 @@ import actionlib
 from common.tools.Lifo import Lifo
 from CmdTwist import CmdTwist
 
+from doors import DoorDetector
 
 
 class GoCleanRetryReplayLastNavStrategy(AbstractNavStrategy):
@@ -31,13 +32,13 @@ class GoCleanRetryReplayLastNavStrategy(AbstractNavStrategy):
 
     def __init__(self,actMove_base):
         AbstractNavStrategy.__init__(self,actMove_base)
-        
-        
+
+
         self._tflistener = TransformListener()
 
         self._twistLifo=Lifo(self._twistBufferSize)
-        
-        
+
+
         #register clear costmap services
 
         try:
@@ -56,9 +57,9 @@ class GoCleanRetryReplayLastNavStrategy(AbstractNavStrategy):
         except Exception as e:
             rospy.loginfo("Service clear cost maps call failed: %s" % e)
 
-        
+
         self._map_pub=rospy.Publisher('map',OccupancyGrid,queue_size=1)
- 
+
         #FIME TO BE UPDATED WITH REAL TOPIC NAME OF PEPPER
         #CAUTION naoqi could block cmd if collision risk...
 
@@ -79,7 +80,7 @@ class GoCleanRetryReplayLastNavStrategy(AbstractNavStrategy):
     def goto(self, sourcePose, targetPose):
         ##NEED TO Make stuff into another thread
 
-    
+
 
         #Start global Timer
         self.startTimeWatch()
@@ -90,14 +91,14 @@ class GoCleanRetryReplayLastNavStrategy(AbstractNavStrategy):
 
          #Create Goal action Message
         current_goal = MoveBaseGoal()
-        current_goal.target_pose.pose=targetPose       
+        current_goal.target_pose.pose=targetPose
         current_goal.target_pose.header.frame_id = 'map'
         current_goal.target_pose.header.stamp = rospy.Time.now()
-	    
+
         # check if global retry and global timer are not trigged
         while (self._retry_nb < self._retry_max_nb) and (not self._timeout_checker) and (not self._stopCurrentNav) and (not rospy.is_shutdown()):
 
-           
+
             # Start the robot toward the next location
             self._current_goalhandle =self._actMove_base.send_goal(current_goal)
 
@@ -114,7 +115,7 @@ class GoCleanRetryReplayLastNavStrategy(AbstractNavStrategy):
                 #Sleep the expected time
                 #time.sleep(data.action.waitTime)
                 #rospy.loginfo('Sleep end')
-                
+
                 #Reset current strategy parameters
                 self.reset()
                 return True
@@ -147,10 +148,10 @@ class GoCleanRetryReplayLastNavStrategy(AbstractNavStrategy):
         #rospy.Time.now()
         #rospy.get_rostime()
         self._actMove_base.cancel_goals_at_and_before_time(rospy.Time.now())
-        #CAUTION update the global_cost_map publish_frequency parameter to work with this wait time (e.g 2.0hz) +update frequency (e.g 2.5hz) 
+        #CAUTION update the global_cost_map publish_frequency parameter to work with this wait time (e.g 2.0hz) +update frequency (e.g 2.5hz)
         rospy.sleep(0.5)
-       
-        
+
+
     def resetCostMaps(self):
         try:
             # call clear all costmap before perfoming navigation
@@ -163,7 +164,7 @@ class GoCleanRetryReplayLastNavStrategy(AbstractNavStrategy):
         #    current_map=self._getMap()
         #except Exception as e:
         #    rospy.loginfo("Service static map call failed: %s" % e)
-        # 
+        #
         #self._map_pub.publish(current_map.map)
         #rospy.sleep(5)
 
@@ -190,18 +191,18 @@ class GoCleanRetryReplayLastNavStrategy(AbstractNavStrategy):
                 rospy.loginfo("Unable to reverse twist cmd: %s" % e)
 
             for i in range(self._twistLifo.size()):
-                
+
                 twist_cmd=self._twistLifo.pop()
                 if self.isStopCmdTwist(twist_cmd.getTwistCmd()):
                     duration=0.1
                 else:
                     duration=twist_cmd.duration()
-                #revert the twist cmd linear and angular 
+                #revert the twist cmd linear and angular
                 reversed_twist_cmd=twist_cmd.reverse()
                 self._twist_pub.publish(reversed_twist_cmd)
                 #CAUTION need to register also the time elapsed betweed twist cmd...
                 time.sleep(duration)
-                
+
         finally:
             self._isReversePathActivated=False
 
@@ -210,7 +211,7 @@ class GoCleanRetryReplayLastNavStrategy(AbstractNavStrategy):
         if abs(msg.linear.x) == 0 and abs(msg.linear.y) == 0 and abs(msg.linear.z) == 0 and abs(msg.angular.x) == 0 and abs(msg.angular.y) == 0 and abs(msg.angular.z) == 0 :
             return True
         else:
-            return False 
+            return False
 
 
     def isBaseLinkIntoGlobalCostMap(self):
@@ -224,7 +225,7 @@ class GoCleanRetryReplayLastNavStrategy(AbstractNavStrategy):
             return True
         else:
             return False
-            
+
     def isPtIntoCostMap(self,x,y):
         global_cost_value=self.getCostMapValue(x,y,self._globalCostMap)
         #FIME need to adjust coord for local costmap
@@ -246,7 +247,7 @@ class GoCleanRetryReplayLastNavStrategy(AbstractNavStrategy):
         index_y= int(round(grid_y * map.info.width))
         #FIXME TO BE CHECKED!!!
         return map.data[grid_x+index_y]
-       
+
 
 
     def globalCostMap_callback(self,msg):
@@ -255,8 +256,3 @@ class GoCleanRetryReplayLastNavStrategy(AbstractNavStrategy):
     def localCostMap_callback(self,msg):
          self._localCostMap=msg
 
-
-
-
-    
-            

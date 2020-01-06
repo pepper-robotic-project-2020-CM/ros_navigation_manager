@@ -10,9 +10,6 @@ from nav_msgs.srv import GetMap
 import time
 
 
-
-
-
 class GoCleanRetryNavStrategy(AbstractNavStrategy):
 
     def __init__(self,actMove_base):
@@ -34,20 +31,20 @@ class GoCleanRetryNavStrategy(AbstractNavStrategy):
             # reset_costmap()
         except Exception as e:
             rospy.loginfo("Service clear cost maps call failed: %s" % e)
-        
+
         self._map_pub=rospy.Publisher('map',OccupancyGrid,queue_size=1)
 
 
     def goto(self, sourcePose, targetPose):
         #Create Goal action Message
         current_goal = MoveBaseGoal()
-        current_goal.target_pose.pose=targetPose       
+        current_goal.target_pose.pose=targetPose
         current_goal.target_pose.header.frame_id = 'map'
         current_goal.target_pose.header.stamp = rospy.Time.now()
 
         #Start global Timer
         self.startTimeWatch()
-	    
+
         # check if global retry and global timer are not trigged
         while (self._retry_nb < self._retry_max_nb) and (not self._timeout_checker):
 
@@ -67,7 +64,7 @@ class GoCleanRetryNavStrategy(AbstractNavStrategy):
                 #Sleep the expected time
                 #time.sleep(data.action.waitTime)
                 #rospy.loginfo('Sleep end')
-                
+
                 #Reset current strategy parameters
                 self.reset()
                 return True
@@ -80,7 +77,7 @@ class GoCleanRetryNavStrategy(AbstractNavStrategy):
         rospy.logwarn('Goal FAILURE until retry and clearing, returning : [' + str(current_goal).replace("\n","")+']')
         self.reset()
         return False
-        
+
     def resetCostMaps(self):
         try:
             # call clear all costmap before perfoming navigation
@@ -96,6 +93,3 @@ class GoCleanRetryNavStrategy(AbstractNavStrategy):
         #
         #self._map_pub.publish(current_map.map)
         #rospy.sleep(5)
-
-
-            
