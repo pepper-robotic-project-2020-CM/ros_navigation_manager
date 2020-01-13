@@ -6,11 +6,13 @@ from geometry_msgs.msg import Pose, PoseWithCovarianceStamped, PoseWithCovarianc
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 from std_srvs.srv import Empty
 from nav_msgs.msg import OccupancyGrid
+from nav_msgs.msg import Odometry
 from nav_msgs.srv import GetMap
 from actionlib_msgs.msg import GoalID
 import time
 from tf import TransformListener
 import actionlib
+from tf.transformations import *
 
 from common.tools.Lifo import Lifo
 from CmdTwist import CmdTwist
@@ -67,17 +69,63 @@ class GoCleanRetryReplayLastNavStrategy(AbstractNavStrategy):
         #self._twist_sub=rospy.Subscriber("/cmd_vel_mux/input/navi", Twist, self.twist_callback)
         #self._twist_teleop_sub=rospy.Subscriber("/cmd_vel_mux/input/teleop", Twist, self.twist_callback)
 
+        self._odom_sub = rospy.Subscriber("/pepper_robot/odom", Odometry, self.odom_call_back)
+        self.odom_pose = Pose()
+        self.yaw = 0.0
 
-        self._twist_pub=rospy.Publisher("/cmd_vel_mux/input/navi", Twist, queue_size=1)
+
+        self._twist_pub=rospy.Publisher("/cmd_vel", Twist, queue_size=1)
 
         #FIME TO BE UPDATED WITH REAL TOPIC NAME OF PEPPER
         self._globalCostMap_sub=rospy.Subscriber("/move_base/global_costmap/costmap", OccupancyGrid, self.globalCostMap_callback)
         self._localCostMap_sub=rospy.Subscriber("/move_base/local_costmap/costmap", OccupancyGrid, self.localCostMap_callback)
 
+    def odom_call_back(self, msg):
+        self.odom_pose = msg.pose.pose
+        orientation_q = self.odom_pose.orientation
+        orientation_list = [orientation_q.x, orientation_q.y, orientation_q.z, orientation_q.w]
+        (_, _, self.yaw) = euler_from_quaternion (orientation_list)
 
+    def pass_through_door(self, targetPose):
+        r = rospy.Rate(10)
 
+        # First rotation (90)
+        twist = Twist()
+        twist.angular.z = 0.2
+        target_rad = self.yaw + math.pi/2 # mettre une position relative
+        rospy.loginfo("Start 1st rotation")
+        while abs(target_rad - self.yaw) > 0.1:
+            self._twist_pub.publish(twist)
+            r.sleep()
+        twist.angular.z = 0
+        self._twist_pub.publish(twist)
+        rospy.loginfo("End 1st rotation")
 
-    def goto(self, sourcePose, targetPose):
+        # Translation
+        twist.linear.y = -0.1
+        target_y = self.odom_pose.position.y + 0.3
+        rospy.loginfo("Start translation")
+        while (abs(self.odom_pose.position.y - target_y) > 0.1):
+            self._twist_pub.publish(twist)
+            r.sleep()
+        twist.linear.y = 0
+        self._twist_pub.publish(twist)
+        rospy.loginfo('End translation')
+
+        # Second rotation (90)
+        twist.angular.z = -0.2
+        target_rad = self.yaw - math.pi/2 # mettre une position relative
+        rospy.loginfo("Start 2nd rotation")
+        while abs(target_rad - self.yaw) > 0.1:
+            self._twist_pub.publish(twist)
+            r.sleep()
+        twist.angular.z = 0
+        safety_duration = rospy.Time.now() + rospy.Duration.from_sec(1)
+        while rospy.Time.now() < safety_duration:
+            self._twist_pub.publish(twist)
+        rospy.loginfo("End 2nd rotation")
+
+    def goto(self, sourcePose, targetPose, type=""):
         ##NEED TO Make stuff into another thread
 
 
@@ -100,15 +148,17 @@ class GoCleanRetryReplayLastNavStrategy(AbstractNavStrategy):
 
 
             # Start the robot toward the next location
-            self._current_goalhandle =self._actMove_base.send_goal(current_goal)
+            self._current_goalhandle = self._actMove_base.send_goal(current_goal)
 
-            #launch navigation
+            # Launch navigation
             self._actMove_base.wait_for_result(rospy.Duration.from_sec(self._maxWaitTimePerGoal))
-            current_action_state=self._actMove_base.get_state()
-
+            current_action_state = self._actMove_base.get_state()
 
                 #if isActionResultSuccess and self._actMove_base.get_state()!= self.MOVE_BASE_ACTION_STATE_FAILURE:
-            if  current_action_state==3 :
+            if current_action_state==3:
+                if type == 'door_goal':
+                    self.pass_through_door(targetPose)
+
                 rospy.loginfo('Navigation_Management: action state:'+ str(self._actMove_base.get_state()))
                 rospy.loginfo('Navigation_Management :Goal Successfully achieved: ' + str(current_goal).replace("\n",""))
                 #rospy.loginfo('Wait now extected duration: ' + str(data.action.waitTime))
@@ -255,4 +305,3 @@ class GoCleanRetryReplayLastNavStrategy(AbstractNavStrategy):
 
     def localCostMap_callback(self,msg):
          self._localCostMap=msg
-
