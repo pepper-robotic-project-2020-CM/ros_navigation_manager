@@ -28,9 +28,6 @@ from common.navstrategy.GoCleanRetryNavStrategy import GoCleanRetryNavStrategy
 from common.navstrategy.GoCleanRetryReplayLastNavStrategy import GoCleanRetryReplayLastNavStrategy
 from common.navstrategy.GoCRRCloseToGoal import GoCRRCloseToGoal
 
-from common.doors import DoorDetector
-
-
 
 ######### Command to Test
 ##  rostopic pub /gm_bus_command robocup_msgs/gm_bus_msg "{'action': 'NP', 'action_id': '1', 'payload': 'A_sim', 'result': 0}"
@@ -94,7 +91,6 @@ class Nm:
         self._actionServer = actionlib.SimpleActionServer('navigation_manager', NavMngAction, self.executeActionServer, False)
         self._actionServer.start()
 
-        self.door_detector = DoorDetector(self.door_detected_callback)
 
         rospy.spin()  # spin() simply keeps python from exiting until this node is stopped
 
@@ -308,28 +304,6 @@ class Nm:
         self._current_message_action = data.action
         self._current_message_id = data.action_id
         self.turnAround(float(math.pi))
-
-    def door_detected_callback(self, doors):
-        """ action when door is detected
-
-        :param doors: list of doors on the path
-        :type doors: List<Door>
-        """
-        # NOTE: it should maybe go in the navigation strategy
-        # TODO: document the architecture of the navigation manager with a
-        #       scheme
-        if len(doors) == 1:
-            rospy.loginfo("Door detected on path")
-        elif doors:
-            rospy.loginfo("Doors are detected on path")
-
-        # TODO: launch navigation goal on action server
-        # implementation NOTE: the door objects contain a transpose function
-        #                      that can be used to set the point where to go
-        # TODO: then continue with last action
-        # implementation NOTE: add a "previous action" that saves the state of
-        #                      the prevous action to resume it
-
 
 if __name__ == '__main__':
     nm = Nm()

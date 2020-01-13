@@ -34,6 +34,9 @@ class Door:
 
         :param dist: distance of the transposition in meters
         :type dist: int
+
+        :return: tranposed pose
+        :rtype: Pose
         """
         x = self.interest_point.pose.position.x
         y = self.interest_point.pose.position.y
@@ -50,7 +53,7 @@ class Door:
         transposed_pose.position.y = y + distance * math.sin(th)
         return transposed_pose
 
-    def on_path(self, path, distance_treshold=0.2):
+    def on_path(self, path, distance_threshold=0.2):
         """ verify if the door is on the given path
 
         If the door interest point is under the distance_treshold,
@@ -75,7 +78,7 @@ class Door:
             dist_to_door = math.sqrt(
                 pow(path_y - door_y, 2), pow(path_x - door_x, 2)
             )
-            if dist_to_door > distance_treshold:
+            if dist_to_door > self.distance_treshold:
                 # TODO: verify if in right direction
                 # TODO: return reversed door if door in the other direction
                 return [cls(self.interest_point, reverse=False)]
@@ -93,6 +96,7 @@ class DoorDetector:
         doors_detected_callback,
         interest_points_topic="/interest_points",
         path_topic="/move_base/DWAPlannerROS/global_plan",
+        distance_threshold=0.2
     ):
         """ create a door detector
 
@@ -103,14 +107,13 @@ class DoorDetector:
         :param path_topic: topic of path
         """
 
-        # TODO: initialize door subscription topic
-        # sub TODO: broadcast interest points from map_manager node
         self.doors_sub = rospy.Subscriber(
-            doors_topic, InterestPoints, self.doors_callback
+            interest_points_topic, InterestPoints, self.doors_callback
         )
         self.path_sub = rospy.Subscriber(path_topic, Path, self.path_callback)
 
         self.door_detected_callback = doors_detected_callback
+        self.distance_threshold = distance_threshold
 
     def doors_callback(self, msg):
         """ callback when door message is received """
@@ -139,7 +142,7 @@ class DoorDetector:
         """
         doors_on_path = []
         for door in self.doors:
-            doors_on_path += door.on_path(path)
+            doors_on_path += door.on_path(path, self.distance_threshold)
 
         return doors_on_path
 

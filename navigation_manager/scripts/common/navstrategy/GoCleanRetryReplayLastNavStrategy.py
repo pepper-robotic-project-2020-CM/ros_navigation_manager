@@ -17,7 +17,8 @@ from tf.transformations import *
 from common.tools.Lifo import Lifo
 from CmdTwist import CmdTwist
 
-from doors import DoorDetector
+from common.goal.doors import DoorDetector
+from common.goal.action import GoalPose
 
 
 class GoCleanRetryReplayLastNavStrategy(AbstractNavStrategy):
@@ -31,6 +32,9 @@ class GoCleanRetryReplayLastNavStrategy(AbstractNavStrategy):
     _stopCurrentNav=False
     _current_goalhandle=False
     _isReplyLastCmdActivated=True
+
+    _current_goal = None
+    _goal_pile = []
 
     def __init__(self,actMove_base):
         AbstractNavStrategy.__init__(self,actMove_base)
@@ -80,6 +84,13 @@ class GoCleanRetryReplayLastNavStrategy(AbstractNavStrategy):
         self._globalCostMap_sub=rospy.Subscriber("/move_base/global_costmap/costmap", OccupancyGrid, self.globalCostMap_callback)
         self._localCostMap_sub=rospy.Subscriber("/move_base/local_costmap/costmap", OccupancyGrid, self.localCostMap_callback)
 
+        self.door_detector = DoorDetector(self.door_detected_callback)
+
+    def reset(self):
+        self._goal_pile = []
+        self._current_goal = None
+        super(GoCleanRetryReplayLastNavStrategy, self).reset()
+
     def odom_call_back(self, msg):
         self.odom_pose = msg.pose.pose
         orientation_q = self.odom_pose.orientation
@@ -128,7 +139,7 @@ class GoCleanRetryReplayLastNavStrategy(AbstractNavStrategy):
     def goto(self, sourcePose, targetPose, type=""):
         ##NEED TO Make stuff into another thread
 
-
+        self._current_goal = GoalPose(source=sourcePose, goal_type=type, target=targetPose)
 
         #Start global Timer
         self.startTimeWatch()
@@ -187,6 +198,11 @@ class GoCleanRetryReplayLastNavStrategy(AbstractNavStrategy):
                 self._retry_nb=self._retry_nb+1
         rospy.logwarn('Goal FAILURE until retry and clearing, returning : [' + str(current_goal).replace("\n","")+']')
         self.stopAll()
+
+        if self._goal_pile:
+            goal = self._goal_pile.pop()
+            self.goto(*goal.parameters())
+
         self.reset()
         return False
 
@@ -201,6 +217,25 @@ class GoCleanRetryReplayLastNavStrategy(AbstractNavStrategy):
         #CAUTION update the global_cost_map publish_frequency parameter to work with this wait time (e.g 2.0hz) +update frequency (e.g 2.5hz)
         rospy.sleep(0.5)
 
+    def door_detected_callback(self, doors):
+        """ action when door is detected
+
+        :param doors: list of doors on the path
+        :type doors: List<Door>
+        """
+        # NOTE: it should maybe go in the navigation strategy
+        # TODO: document the architecture of the navigation manager with a
+        #       scheme
+        assert doors, "No door detected but callback triggered"
+
+        if len(doors) == 1:
+            rospy.loginfo("Door detected on path")
+        elif doors:
+            rospy.loginfo("Doors are detected on path")
+
+        self._goal_pile.append(self._current_goal)
+        new_goal_target = doors[0].transpose()
+        self.goto(None, new_goal_target, type='door_goal')
 
     def resetCostMaps(self):
         try:
@@ -305,3 +340,4 @@ class GoCleanRetryReplayLastNavStrategy(AbstractNavStrategy):
 
     def localCostMap_callback(self,msg):
          self._localCostMap=msg
+
