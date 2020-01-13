@@ -31,8 +31,8 @@ from common.navstrategy.GoCRRCloseToGoal import GoCRRCloseToGoal
 
 
 ######### Command to Test
-##  rostopic pub /gm_bus_command robocup_msgs/gm_bus_msg "{'action': 'NP', 'action_id': '1', 'payload': 'A_sim', 'result': 0}" 
-## rostopic pub /gm_bus_command robocup_msgs/gm_bus_msg "{'action': 'NT', 'action_id': '1', 'payload': 'A_sim', 'result': 0}" 
+##  rostopic pub /gm_bus_command robocup_msgs/gm_bus_msg "{'action': 'NP', 'action_id': '1', 'payload': 'A_sim', 'result': 0}"
+## rostopic pub /gm_bus_command robocup_msgs/gm_bus_msg "{'action': 'NT', 'action_id': '1', 'payload': 'A_sim', 'result': 0}"
 #########
 
 class Nm:
@@ -72,7 +72,7 @@ class Nm:
 
         #initiate function on action
         self._actionToServiceMap={"NP":self.npAction,"Goto":self.gotoAction,"NF":self.nfAction,"NFS":self.nfsAction,"NT":self.ntAction}
-        
+
         # initialize services and topics as well as function calls
         self._gm_bus_pub = rospy.Publisher("gm_bus_answer", gm_bus_msg, queue_size=1)
         self._gm_bus_sub = rospy.Subscriber("gm_bus_command", gm_bus_msg, self.gmBusListener)
@@ -111,7 +111,7 @@ class Nm:
             #isActionSucceed=self._actionToServiceMap[data.action](data)
             ### FIXME need to rework all _actionToServiceMap call...
             if goal.action == "NP" :
-                current_navigationStrategy=self._navigationStrategyMaps[goal.navstrategy]  
+                current_navigationStrategy=self._navigationStrategyMaps[goal.navstrategy]
                 isActionSucceed=self.navigateToGoal("None",goal.itP,goal.action,current_navigationStrategy,goal.itP_point.x,goal.itP_point.y)
             elif goal.action == "NT":
                  self.turnAround(float(math.pi))
@@ -145,8 +145,11 @@ class Nm:
             # Step 1: get pose of sent interest point label
             itPoint = self._getPoint_service(current_itP)
             # Step 2: Use a navigation strategy
-            result= navigationStrategy.goto(None,itPoint.itP.pose)
-        
+            if itPoint.itP.type == 'door_goal':
+                result= navigationStrategy.goto(None, itPoint.itP.pose, 'door_goal')
+            else:
+                result= navigationStrategy.goto(None, itPoint.itP.pose)
+
         # Step 3: Send result to the general Manager
         resultId=4 #Failure
         if result:
@@ -231,7 +234,7 @@ class Nm:
         rospy.loginfo(robotPose)
         result= current_navigationStrategy.goto(None,robotPose)
         return result
-        
+
         #self._current_gateway_id = str(uuid.uuid1())
         #goal_message = NavGoalToGateway()
         #goal_message.uuid = self._current_gateway_id
@@ -254,9 +257,9 @@ class Nm:
         self._repetitions = 0
         #strategy to apply
         #current_navigationStrategy=self._navigationStrategyMaps["Simple"]
-        #current_navigationStrategy=self._navigationStrategyMaps["CleanAndRetry"]  
-        current_navigationStrategy=self._navigationStrategyMaps["CleanRetryReplay"]  
-             
+        #current_navigationStrategy=self._navigationStrategyMaps["CleanAndRetry"]
+        current_navigationStrategy=self._navigationStrategyMaps["CleanRetryReplay"]
+
         self.navigate(self._current_message_id,self._current_itP,self._current_message_action,current_navigationStrategy)
 
     def gotoAction(self,data):
@@ -285,14 +288,14 @@ class Nm:
         self._current_message_id = data.action_id
         self._current_payload= data.payload
         self.follow()
-        
+
     def nfsAction(self,data):
         # stop navigating while following a human
         # data.payload
         self._current_message_action = data.action
         self._current_message_id = data.action_id
         self.followStop()
-         
+
     def ntAction(self,data):
         # turn around (180 degrees)
         self._current_message_action = data.action
