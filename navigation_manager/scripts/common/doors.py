@@ -7,10 +7,13 @@ And the DoorDetector to detect door on the robot trajectory
 import math
 import rospy
 from nav_msgs.msg import Path
+from geometry_mesgs import Pose
 from robocup_msgs.msg import InterestPoint, InterestPoints
 
+from tf.transformations import quaternion_from_euler, euler_from_quaternion
 
-class Door():
+
+class Door:
     """ manipulate door waypoints """
 
     reverse = False
@@ -32,7 +35,20 @@ class Door():
         :param dist: distance of the transposition in meters
         :type dist: int
         """
-        pass
+        x = self.interest_point.pose.position.x
+        y = self.interest_point.pose.position.y
+        (_, _, th) = euler_from_quaternion(
+            self.interest_point.pose.orientation
+        )
+
+        # translated taking the opposite of the door direction
+        th = th if self.reverse else -th
+
+        transposed_pose = Pose()
+        transposed_pose.orientation = self.interest_point.pose.orientation
+        transposed_pose.position.x = x + distance * math.cos(th)
+        transposed_pose.position.y = y + distance * math.sin(th)
+        return transposed_pose
 
     def on_path(self, path, distance_treshold=0.2):
         """ verify if the door is on the given path
@@ -56,8 +72,9 @@ class Door():
             door_x = self.interest_point.pose.position.x
             door_y = self.interest_point.pose.position.y
 
-            dist_to_door = math.sqrt(pow(path_y - door_y, 2),
-                                     pow(path_x - door_x, 2))
+            dist_to_door = math.sqrt(
+                pow(path_y - door_y, 2), pow(path_x - door_x, 2)
+            )
             if dist_to_door > distance_treshold:
                 # TODO: verify if in right direction
                 # TODO: return reversed door if door in the other direction
@@ -66,15 +83,17 @@ class Door():
         return []
 
 
-class DoorDetector():
+class DoorDetector:
     """ detection of doors on path """
 
     doors = []
 
-    def __init__(self,
-                 doors_detected_callback,
-                 doors_topic='',
-                 path_topic='/move_base/DWAPlannerROS/global_plan'):
+    def __init__(
+        self,
+        doors_detected_callback,
+        interest_points_topic="/interest_points",
+        path_topic="/move_base/DWAPlannerROS/global_plan",
+    ):
         """ create a door detector
 
         :param doors_callback: function to be called when door is detected
@@ -85,13 +104,11 @@ class DoorDetector():
         """
 
         # TODO: initialize door subscription topic
-            # sub TODO: broadcast interest points from map_manager node
-        self.doors_sub = rospy.Subscriber(doors_topic,
-                                          InterestPoints,
-                                          self.doors_callback)
-        self.path_sub = rospy.Subscriber(path_topic,
-                                         Path,
-                                         self.path_callback)
+        # sub TODO: broadcast interest points from map_manager node
+        self.doors_sub = rospy.Subscriber(
+            doors_topic, InterestPoints, self.doors_callback
+        )
+        self.path_sub = rospy.Subscriber(path_topic, Path, self.path_callback)
 
         self.door_detected_callback = doors_detected_callback
 
@@ -100,7 +117,7 @@ class DoorDetector():
         self.doors = [
             Door(interest_point)
             for interest_point in msg
-            if msg.type == 'door_goal'
+            if msg.type == "door_goal"
         ]
 
     def path_callback(self, msg):
