@@ -45,24 +45,25 @@ class Door():
         :param path: path on which to verify if there is a door
         :param distance_treshold: distance
 
-        :return: set containing a Door if the door is on the path
+        :return: list containing a Door if the door is on the path
                  or nothing if there is no door
-        :rtype: set<Door>
+        :rtype: list<Door>
         """
         cls = type(self)
 
         for pose in path:
             path_x, path_y = pose.pose.position.x, pose.pose.position.y
-            door_x, door_y = self.interest_point.pose.position.x, self.interest_point.pose.position.y
+            door_x = self.interest_point.pose.position.x
+            door_y = self.interest_point.pose.position.y
 
             dist_to_door = math.sqrt(pow(path_y - door_y, 2),
                                      pow(path_x - door_x, 2))
             if dist_to_door > distance_treshold:
                 # TODO: verify if in right direction
                 # TODO: return reversed door if door in the other direction
-                return set(cls(self.interest_point, reverse=False))
+                return [cls(self.interest_point, reverse=False)]
 
-        return set()
+        return []
 
 
 class DoorDetector():
@@ -71,11 +72,16 @@ class DoorDetector():
     doors = []
 
     def __init__(self,
+                 doors_detected_callback,
                  doors_topic='',
                  path_topic='/move_base/DWAPlannerROS/global_plan'):
         """ create a door detector
 
-        :param doors: topic of doors
+        :param doors_callback: function to be called when door is detected
+                               definition of the function is
+                               (door: Door) -> None
+        :param doors_topic: topic of doors
+        :param path_topic: topic of path
         """
 
         # TODO: initialize door subscription topic
@@ -87,29 +93,36 @@ class DoorDetector():
                                          Path,
                                          self.path_callback)
 
+        self.door_detected_callback = doors_detected_callback
+
     def doors_callback(self, msg):
-        pass
+        """ callback when door message is received """
+        self.doors = [
+            Door(interest_point)
+            for interest_point in msg
+            if msg.type == 'door_goal'
+        ]
 
     def path_callback(self, msg):
+        """ callback when path message is received """
         doors_on_path = self.on_path(msg)
         if doors_on_path:
-            # TODO: launch new dest ()
-            # NOTE: it's not a good idea to add new dest here
-            # It should be added in a objective pile
-            pass
+            self.door_detected_callback(doors_on_path)
 
     def on_path(self, path):
-        """ return doors on path
+        """ look if there are doors on path
+
+        It returns a set with the doors on the path
 
         :param path: Path on which to search for doors
         :type path: Path
 
-        :return: return the doors on the path
+        :return: return a list containing the doors on the path
         :rtype: list<Door>
         """
-        doors_on_path = set()
+        doors_on_path = []
         for door in self.doors:
-            doors_on_path |= door.on_path(path)
+            doors_on_path += door.on_path(path)
 
         return doors_on_path
 
