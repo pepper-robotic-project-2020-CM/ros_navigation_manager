@@ -5,12 +5,14 @@
   <!-- <arg name="map_file" default="$(find pepper_nav_custom)/maps/hoomano_map.yaml"/>                 10.1.124.246         -->
   <!-- <arg name="map_file" default="$(find pepper_nav_custom)/maps/robocup_official_area2_v4_updated.yaml"/> -->
   <!-- <arg name="map_file" default="$(find pepper_nav_custom)/maps/test-3dfloor-hokuyo.yaml"/> -->
-  <arg name="map_file" default="$(find pepper_nav_custom)/maps/test-thes.yaml"/>
-  <arg name="nao_ip" default="$(optenv NAO_IP 169.254.93.196)" />
+  <!-- <arg name="map_file" default="$(find pepper_nav_custom)/maps/map-test-robocuproom.yaml"/> -->
+  <arg name="map_file" default="$(find pepper_nav_custom)/maps/map.yaml" />
+  <arg name="nao_ip" default="$(optenv NAO_IP 192.168.49.20)" />
   <arg name="nao_port" default="$(optenv NAO_PORT 9559)" />
   <arg name="scan_topic" default="/pepper_robot/laser" />
   <arg name="front_sonar" default="/pepper_robot/sonar/front" />
-  <arg name="pcl_topic" default="/pepper_robot/camera/depth_registered/points" />
+<!--   <arg name="pcl_topic" default="/pepper_robot/camera/depth_registered/points" /> -->
+  <arg name="pcl_topic" default="/pepper_robot/camera/depth/points" />
   <arg name="odom_topic" default="/pepper_robot/odom"/>
   <!-- <arg name="odom_topic" default="/odom"/> -->
   
