@@ -7,7 +7,7 @@ And the DoorDetector to detect door on the robot trajectory
 import math
 import rospy
 from nav_msgs.msg import Path
-from geometry_msgs import Pose
+from geometry_msgs.msg import Pose
 from robocup_msgs.msg import InterestPoint, InterestPoints
 
 from tf.transformations import quaternion_from_euler, euler_from_quaternion
