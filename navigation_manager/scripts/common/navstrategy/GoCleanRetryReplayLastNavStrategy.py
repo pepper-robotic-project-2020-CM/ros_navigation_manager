@@ -18,7 +18,7 @@ from common.tools.Lifo import Lifo
 from CmdTwist import CmdTwist
 
 from common.goal.doors import DoorDetector
-from common.goal.action import GoalPose
+from common.goal.goal import GoalPose
 
 
 class GoCleanRetryReplayLastNavStrategy(AbstractNavStrategy):
