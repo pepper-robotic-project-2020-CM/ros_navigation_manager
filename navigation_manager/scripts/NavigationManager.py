@@ -144,14 +144,10 @@ class Nm:
             # Step 1: get pose of sent interest point label
             itPoint = self._getPoint_service(current_itP)
             # Step 2: Use a navigation strategy
-<<<<<<< HEAD
-            result= navigationStrategy.goto(None,itPoint.itP.pose)
-=======
             if itPoint.itP.type == 'door_goal':
                 result= navigationStrategy.goto(None, itPoint.itP.pose, 'door_goal')
             else:
                 result= navigationStrategy.goto(None, itPoint.itP.pose)
->>>>>>> master
 
         # Step 3: Send result to the general Manager
         resultId=4 #Failure
