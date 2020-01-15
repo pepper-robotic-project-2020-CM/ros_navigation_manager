@@ -228,6 +228,11 @@ class GoCleanRetryReplayLastNavStrategy(AbstractNavStrategy):
         #       scheme
         assert doors, "No door detected but callback triggered"
 
+        # NOTE: it is only used because the door detection is badly implemented
+        # FIXME: remove when correct door algorithm  is implemented
+        if self._current_goal.goal_type == 'door_goal':
+            return
+
         if len(doors) == 1:
             rospy.loginfo("Door detected on path")
         elif doors:
