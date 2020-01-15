@@ -114,8 +114,8 @@ class GoCleanRetryReplayLastNavStrategy(AbstractNavStrategy):
         self.front_range = msg.range
 
     def laser_call_back(self, msg):
-        self.right_laser_range = msg.ranges[-14:]
-        self.left_laser_range = msg.ranges[:14]
+        self.right_laser_range = msg.ranges[-10:]
+        self.left_laser_range = msg.ranges[:10]
 
     def pass_through_door(self, targetPose):
         r = rospy.Rate(10)
@@ -138,15 +138,14 @@ class GoCleanRetryReplayLastNavStrategy(AbstractNavStrategy):
         rospy.loginfo("Start translation")
         rotation_time = rospy.Time.now() + rospy.Duration.from_sec(0.5)
         while (abs(self.odom_pose.position.y - target_y) > 0.1):
-            rospy.loginfo("TRANSLATION")
             laser_range = deepcopy(self.left_laser_range)
-            rospy.loginfo(str(len([r for r in laser_range if r < 0.9])))
-            while len([r for r in laser_range if r < 0.9]) > 1:
-                rospy.loginfo("STOP")
+            while len([r for r in laser_range if r < 0.7]) > 2:
+                rospy.loginfo(str(len([r for r in laser_range if r < 0.7])))
                 # Stop if something is in the way
                 twist.linear.y = 0
                 twist.angular.z = 0
                 self._twist_pub.publish(twist)
+                laser_range = deepcopy(self.left_laser_range)
             twist.linear.y = -0.1
             back_range = deepcopy(self.back_range)
             front_range = deepcopy(self.front_range)
