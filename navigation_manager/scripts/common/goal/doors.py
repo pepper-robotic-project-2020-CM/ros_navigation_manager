@@ -122,7 +122,7 @@ class DoorDetector:
         self.doors = [
             Door(interest_point)
             for interest_point in msg.interest_points
-            if msg.type == "door_goal"
+            if interest_point.type == "door_goal"
         ]
 
     def path_callback(self, msg):
