@@ -102,8 +102,8 @@ class GoCleanRetryReplayLastNavStrategy(AbstractNavStrategy):
         self.front_range = msg.range
 
     def laser_call_back(self, msg):
-        self.right_laser_range = msg.ranges[-14:]
-        self.left_laser_range = msg.ranges[:14]
+        self.right_laser_range = msg.ranges[-10:]
+        self.left_laser_range = msg.ranges[:10]
 
     def pass_through_door(self, targetPose):
         r = rospy.Rate(10)
@@ -129,7 +129,7 @@ class GoCleanRetryReplayLastNavStrategy(AbstractNavStrategy):
             rospy.loginfo("TRANSLATION")
             laser_range = deepcopy(self.left_laser_range)
             rospy.loginfo(str(len([r for r in laser_range if r < 0.9])))
-            while len([r for r in laser_range if r < 0.9]) > 1:
+            while len([r for r in laser_range if r < 0.7]) > 1:
                 rospy.loginfo("STOP")
                 # Stop if something is in the way
                 twist.linear.y = 0
