@@ -40,9 +40,15 @@ class Door:
         """
         x = self.interest_point.pose.position.x
         y = self.interest_point.pose.position.y
-        (_, _, th) = euler_from_quaternion(
-            self.interest_point.pose.orientation
+
+        quaternion = (
+            self.interest_point.pose.orientation.x,
+            self.interest_point.pose.orientation.y,
+            self.interest_point.pose.orientation.z,
+            self.interest_point.pose.orientation.w,
         )
+
+        (_, _, th) = euler_from_quaternion(quaternion)
 
         # translated taking the opposite of the door direction
         th = th if self.reverse else -th
@@ -98,7 +104,7 @@ class DoorDetector:
         doors_detected_callback,
         interest_points_topic="/interest_points",
         path_topic="/move_base/DWAPlannerROS/global_plan",
-        distance_threshold=0.2
+        distance_threshold=0.2,
     ):
         """ create a door detector
 
