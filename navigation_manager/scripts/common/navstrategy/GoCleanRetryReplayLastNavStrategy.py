@@ -151,9 +151,7 @@ class GoCleanRetryReplayLastNavStrategy(AbstractNavStrategy):
                 else:
                     twist.angular.z = 0
             self._twist_pub.publish(twist)
-            rospy.loginfo("AFTER PUBLISH")
-            time.sleep(0.1)
-            rospy.loginfo("AFTER SLEEP")
+            rospy.loginfo("END OF WHILE")
         twist.linear.y = 0
         self._twist_pub.publish(twist)
         rospy.loginfo('End translation')
