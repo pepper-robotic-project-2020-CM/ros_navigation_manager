@@ -14,6 +14,7 @@ import time
 from tf import TransformListener
 import actionlib
 from tf.transformations import *
+from copy import deepcopy
 
 from common.tools.Lifo import Lifo
 from CmdTwist import CmdTwist
@@ -138,18 +139,23 @@ class GoCleanRetryReplayLastNavStrategy(AbstractNavStrategy):
         rotation_time = rospy.Time.now() + rospy.Duration.from_sec(0.5)
         while (abs(self.odom_pose.position.y - target_y) > 0.1):
             rospy.loginfo("TRANSLATION")
-            rospy.loginfo(str(len([r for r in self.left_laser_range if r < 0.9])))
-            while len([r for r in self.left_laser_range if r < 0.9]) > 1:
+            laser_range = deepcopy(self.left_laser_range)
+            rospy.loginfo(str(len([r for r in laser_range if r < 0.9])))
+            rospy.loginfo("AFTER LOG")
+            while len([r for r in laser_range if r < 0.9]) > 1:
                 rospy.loginfo("STOP")
                 # Stop if something is in the way
                 twist.linear.y = 0
                 twist.angular.z = 0
                 self._twist_pub.publish(twist)
+            rospy.loginfo("AFTER WHILE")
             twist.linear.y = -0.1
+            back_range = deepcopy(self.back_range)
+            front_range = deepcopy(self.front_range)
             # Rotate if we are too close to a wall
-            if self.back_range - self.front_range > 0.5:
+            if back_range - front_range > 0.5:
                 twist.angular.z = -0.1
-            elif self.front_range - self.back_range > 0.5:
+            elif front_range - back_range > 0.5:
                 twist.angular.z = 0.1
             else:
                 if rospy.Time.now() >= rotation_time and twist.angular.z != 0:
@@ -158,8 +164,11 @@ class GoCleanRetryReplayLastNavStrategy(AbstractNavStrategy):
                     rotation_time = rospy.Time.now() + rospy.Duration.from_sec(0.5)
                 else:
                     twist.angular.z = 0
+            rospy.loginfo("AFTER IF")
             self._twist_pub.publish(twist)
+            rospy.loginfo("AFTER PUBLISH")
             r.sleep()
+            rospy.loginfo("AFTER SLEEP")
         twist.linear.y = 0
         self._twist_pub.publish(twist)
         rospy.loginfo('End translation')
