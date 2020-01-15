@@ -53,7 +53,7 @@ class Door:
         transposed_pose.position.y = y + distance * math.sin(th)
         return transposed_pose
 
-    def on_path(self, path, distance_threshold=0.2):
+    def on_path(self, path, distance_threshold=0.7):
         """ verify if the door is on the given path
 
         If the door interest point is under the distance_treshold,
@@ -78,7 +78,7 @@ class Door:
             door_y = self.interest_point.pose.position.y
 
             dist_to_door = math.sqrt(
-                pow(path_y - door_y, 2), pow(path_x - door_x, 2)
+                pow(path_y - door_y, 2) + pow(path_x - door_x, 2)
             )
             if dist_to_door > self.distance_treshold:
                 # TODO: verify if in right direction
