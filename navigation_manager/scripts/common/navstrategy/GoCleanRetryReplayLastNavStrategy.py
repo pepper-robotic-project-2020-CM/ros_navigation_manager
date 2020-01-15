@@ -126,8 +126,8 @@ class GoCleanRetryReplayLastNavStrategy(AbstractNavStrategy):
         rotation_time = rospy.Time.now() + rospy.Duration.from_sec(0.5)
         while (abs(self.odom_pose.position.y - target_y) > 0.1):
             rospy.loginfo("TRANSLATION")
-            rospy.loginfo(str(len([r for r in self.right_laser_range if r < 0.9])))
-            while len([r for r in self.right_laser_range if r < 0.9]) > 2:
+            rospy.loginfo(str(len([r for r in self.left_laser_range if r < 0.9])))
+            while len([r for r in self.left_laser_range if r < 0.9]) > 1:
                 rospy.loginfo("STOP")
                 # Stop if something is in the way
                 twist.linear.y = 0
