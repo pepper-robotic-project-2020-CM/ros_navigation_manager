@@ -141,14 +141,12 @@ class GoCleanRetryReplayLastNavStrategy(AbstractNavStrategy):
             rospy.loginfo("TRANSLATION")
             laser_range = deepcopy(self.left_laser_range)
             rospy.loginfo(str(len([r for r in laser_range if r < 0.9])))
-            rospy.loginfo("AFTER LOG")
             while len([r for r in laser_range if r < 0.9]) > 1:
                 rospy.loginfo("STOP")
                 # Stop if something is in the way
                 twist.linear.y = 0
                 twist.angular.z = 0
                 self._twist_pub.publish(twist)
-            rospy.loginfo("AFTER WHILE")
             twist.linear.y = -0.1
             back_range = deepcopy(self.back_range)
             front_range = deepcopy(self.front_range)
@@ -164,11 +162,8 @@ class GoCleanRetryReplayLastNavStrategy(AbstractNavStrategy):
                     rotation_time = rospy.Time.now() + rospy.Duration.from_sec(0.5)
                 else:
                     twist.angular.z = 0
-            rospy.loginfo("AFTER IF")
             self._twist_pub.publish(twist)
-            rospy.loginfo("AFTER PUBLISH")
-            r.sleep()
-            rospy.loginfo("AFTER SLEEP")
+            rospy.loginfo("END OF WHILE")
         twist.linear.y = 0
         self._twist_pub.publish(twist)
         rospy.loginfo('End translation')
