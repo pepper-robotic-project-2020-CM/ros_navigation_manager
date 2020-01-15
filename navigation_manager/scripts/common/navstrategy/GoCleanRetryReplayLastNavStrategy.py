@@ -14,6 +14,7 @@ import time
 from tf import TransformListener
 import actionlib
 from tf.transformations import *
+from copy import deepcopy
 
 from common.tools.Lifo import Lifo
 from CmdTwist import CmdTwist
@@ -126,13 +127,16 @@ class GoCleanRetryReplayLastNavStrategy(AbstractNavStrategy):
         rotation_time = rospy.Time.now() + rospy.Duration.from_sec(0.5)
         while (abs(self.odom_pose.position.y - target_y) > 0.1):
             rospy.loginfo("TRANSLATION")
-            rospy.loginfo(str(len([r for r in self.left_laser_range if r < 0.9])))
-            while len([r for r in self.left_laser_range if r < 0.9]) > 1:
+            laser_range = deepcopy(self.left_laser_range)
+            rospy.loginfo(str(len([r for r in laser_range if r < 0.9])))
+            rospy.loginfo("AFTER LOG")
+            while len([r for r in laser_range if r < 0.9]) > 1:
                 rospy.loginfo("STOP")
                 # Stop if something is in the way
                 twist.linear.y = 0
                 twist.angular.z = 0
                 self._twist_pub.publish(twist)
+            rospy.loginfo("AFTER WHILE")
             twist.linear.y = -0.1
             # Rotate if we are too close to a wall
             if self.back_range - self.front_range > 0.5:
