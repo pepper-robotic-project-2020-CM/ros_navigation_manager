@@ -126,9 +126,9 @@ class GoCleanRetryReplayLastNavStrategy(AbstractNavStrategy):
         rospy.loginfo("Start translation")
         rotation_time = rospy.Time.now() + rospy.Duration.from_sec(0.5)
         while (abs(self.odom_pose.position.y - target_y) > 0.1):
+            rospy.loginfo(str(abs(self.odom_pose.position.y - target_y) > 0.1))
             laser_range = deepcopy(self.left_laser_range)
             while len([r for r in laser_range if r < 0.7]) > 2:
-                rospy.loginfo(str(len([r for r in laser_range if r < 0.7])))
                 # Stop if something is in the way
                 twist.linear.y = 0
                 twist.angular.z = 0
@@ -150,7 +150,6 @@ class GoCleanRetryReplayLastNavStrategy(AbstractNavStrategy):
                 else:
                     twist.angular.z = 0
             self._twist_pub.publish(twist)
-            rospy.loginfo("END OF WHILE")
         twist.linear.y = 0
         self._twist_pub.publish(twist)
         rospy.loginfo('End translation')
