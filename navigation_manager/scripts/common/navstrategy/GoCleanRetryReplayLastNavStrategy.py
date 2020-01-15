@@ -8,6 +8,7 @@ from std_srvs.srv import Empty
 from nav_msgs.msg import OccupancyGrid
 from nav_msgs.msg import Odometry
 from nav_msgs.srv import GetMap
+from sensor_msgs.msg import Range, LaserScan
 from actionlib_msgs.msg import GoalID
 import time
 from tf import TransformListener
@@ -77,6 +78,14 @@ class GoCleanRetryReplayLastNavStrategy(AbstractNavStrategy):
         self.odom_pose = Pose()
         self.yaw = 0.0
 
+        self._back_sonar_sub = rospy.Subscriber("/pepper_robot/sonar/back", Range, self.back_sonar_call_back)
+        self._front_sonar_sub = rospy.Subscriber("/pepper_robot/sonar/front", Range, self.front_sonar_call_back)
+        self.back_range = 0.0
+        self.front_range = 0.0
+
+        self._laser_sub = rospy.Subscriber("/pepper_robot/laser", LaserScan, self.laser_call_back)
+        self.right_laser_range = []
+        self.left_laser_range = []
 
         self._twist_pub=rospy.Publisher("/cmd_vel", Twist, queue_size=1)
 
@@ -95,7 +104,17 @@ class GoCleanRetryReplayLastNavStrategy(AbstractNavStrategy):
         self.odom_pose = msg.pose.pose
         orientation_q = self.odom_pose.orientation
         orientation_list = [orientation_q.x, orientation_q.y, orientation_q.z, orientation_q.w]
-        (_, _, self.yaw) = euler_from_quaternion (orientation_list)
+        (_, _, self.yaw) = euler_from_quaternion(orientation_list)
+
+    def back_sonar_call_back(self, msg):
+        self.back_range = msg.range
+
+    def front_sonar_call_back(self, msg):
+        self.front_range = msg.range
+
+    def laser_call_back(self, msg):
+        self.right_laser_range = msg.ranges[-14:]
+        self.left_laser_range = msg.ranges[:14]
 
     def pass_through_door(self, targetPose):
         r = rospy.Rate(10)
@@ -103,7 +122,7 @@ class GoCleanRetryReplayLastNavStrategy(AbstractNavStrategy):
         # First rotation (90)
         twist = Twist()
         twist.angular.z = 0.2
-        target_rad = self.yaw + math.pi/2 # mettre une position relative
+        target_rad = self.yaw + math.pi / 2
         rospy.loginfo("Start 1st rotation")
         while abs(target_rad - self.yaw) > 0.1:
             self._twist_pub.publish(twist)
@@ -114,9 +133,31 @@ class GoCleanRetryReplayLastNavStrategy(AbstractNavStrategy):
 
         # Translation
         twist.linear.y = -0.1
-        target_y = self.odom_pose.position.y + 0.3
+        target_y = self.odom_pose.position.y + 0.5
         rospy.loginfo("Start translation")
+        rotation_time = rospy.Time.now() + rospy.Duration.from_sec(0.5)
         while (abs(self.odom_pose.position.y - target_y) > 0.1):
+            rospy.loginfo("TRANSLATION")
+            rospy.loginfo(str(len([r for r in self.right_laser_range if r < 0.9])))
+            while len([r for r in self.right_laser_range if r < 0.9]) > 2:
+                rospy.loginfo("STOP")
+                # Stop if something is in the way
+                twist.linear.y = 0
+                twist.angular.z = 0
+                self._twist_pub.publish(twist)
+            twist.linear.y = -0.1
+            # Rotate if we are too close to a wall
+            if self.back_range - self.front_range > 0.5:
+                twist.angular.z = -0.1
+            elif self.front_range - self.back_range > 0.5:
+                twist.angular.z = 0.1
+            else:
+                if rospy.Time.now() >= rotation_time and twist.angular.z != 0:
+                    # Correct orientation
+                    twist.angular.z = -twist.angular.z
+                    rotation_time = rospy.Time.now() + rospy.Duration.from_sec(0.5)
+                else:
+                    twist.angular.z = 0
             self._twist_pub.publish(twist)
             r.sleep()
         twist.linear.y = 0
@@ -125,14 +166,14 @@ class GoCleanRetryReplayLastNavStrategy(AbstractNavStrategy):
 
         # Second rotation (90)
         twist.angular.z = -0.2
-        target_rad = self.yaw - math.pi/2 # mettre une position relative
+        target_rad = self.yaw - math.pi / 2
         rospy.loginfo("Start 2nd rotation")
         while abs(target_rad - self.yaw) > 0.1:
             self._twist_pub.publish(twist)
             r.sleep()
         twist.angular.z = 0
-        safety_duration = rospy.Time.now() + rospy.Duration.from_sec(1)
-        while rospy.Time.now() < safety_duration:
+        safety_time = rospy.Time.now() + rospy.Duration.from_sec(1)
+        while rospy.Time.now() < safety_time:
             self._twist_pub.publish(twist)
         rospy.loginfo("End 2nd rotation")
 
@@ -188,10 +229,10 @@ class GoCleanRetryReplayLastNavStrategy(AbstractNavStrategy):
                 self.resetCostMaps()
 
                 rospy.loginfo('Check if current baselink is into critical cost map')
-                if self.isBaseLinkIntoGlobalCostMap():
-                    rospy.logwarn('BASE LINK into critical cost map')
-                    rospy.loginfo('ASK for reverse last Twist Commands')
-                    self.reverseLastTwist()
+                # if self.isBaseLinkIntoGlobalCostMap():
+                #     rospy.logwarn('BASE LINK into critical cost map')
+                #     rospy.loginfo('ASK for reverse last Twist Commands')
+                #     self.reverseLastTwist()
 
 
                 rospy.logwarn('Retrying (current retryNb:'+str(self._retry_nb)+', max retry'+str(self._retry_max_nb)+')')
