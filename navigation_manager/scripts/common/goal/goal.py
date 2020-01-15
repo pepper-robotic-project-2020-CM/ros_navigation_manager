@@ -23,4 +23,4 @@ class GoalPose():
 
     def parameters(self):
         """ return parameters in order to launch funtions """
-        return self.source, self.goal_type, self.target
+        return self.source, self.target, self.goal_type

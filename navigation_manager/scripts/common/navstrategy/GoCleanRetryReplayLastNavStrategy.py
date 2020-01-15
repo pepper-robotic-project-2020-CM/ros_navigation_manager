@@ -189,7 +189,11 @@ class GoCleanRetryReplayLastNavStrategy(AbstractNavStrategy):
     def goto(self, sourcePose, targetPose, type=""):
         ##NEED TO Make stuff into another thread
 
-        self._current_goal = GoalPose(source=sourcePose, goal_type=type, target=targetPose)
+        self._current_goal = GoalPose(
+            source=sourcePose,
+            goal_type=type,
+            target=targetPose
+        )
 
         #Start global Timer
         self.startTimeWatch()
@@ -293,7 +297,7 @@ class GoCleanRetryReplayLastNavStrategy(AbstractNavStrategy):
 
         self._goal_pile.append(self._current_goal)
         new_goal_target = doors[0].transpose()
-        self.goto(None, new_goal_target, type='door_goal')
+        self.goto(None, new_goal_target, 'door_goal')
 
     def resetCostMaps(self):
         try:
