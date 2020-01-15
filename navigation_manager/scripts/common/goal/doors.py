@@ -56,15 +56,15 @@ class Door:
     def on_path(self, path, distance_threshold=0.7):
         """ verify if the door is on the given path
 
-        If the door interest point is under the distance_treshold,
+        If the door interest point is under the distance_threshold,
         the door is considerd to be on the path
 
         The verification of the direction is to be added later
 
         :param path: path on which to verify if there is a door
         :type path: Pose
-        :param distance_treshold: distance
-        :type distance_treshold: int
+        :param distance_threshold: distance
+        :type distance_threshold: int
 
         :return: list containing a Door if the door is on the path
                  or nothing if there is no door
@@ -80,7 +80,7 @@ class Door:
             dist_to_door = math.sqrt(
                 pow(path_y - door_y, 2) + pow(path_x - door_x, 2)
             )
-            if dist_to_door > self.distance_treshold:
+            if dist_to_door > distance_threshold:
                 # TODO: verify if in right direction
                 # TODO: return reversed door if door in the other direction
                 return [cls(self.interest_point, reverse=False)]
