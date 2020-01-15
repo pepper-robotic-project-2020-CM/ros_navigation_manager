@@ -121,7 +121,7 @@ class DoorDetector:
         """ callback when door message is received """
         self.doors = [
             Door(interest_point)
-            for interest_point in msg
+            for interest_point in msg.interest_points
             if msg.type == "door_goal"
         ]
 
