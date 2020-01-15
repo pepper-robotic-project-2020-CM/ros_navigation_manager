@@ -271,7 +271,10 @@ class GoCleanRetryReplayLastNavStrategy(AbstractNavStrategy):
 
         # NOTE: it is only used because the door detection is badly implemented
         # FIXME: remove when correct door algorithm  is implemented
-        if self._current_goal.goal_type == 'door_goal':
+        if (
+            self._current_goal is not None
+            and self._current_goal.goal_type == 'door_goal'
+        ):
             return
 
         if len(doors) == 1:
