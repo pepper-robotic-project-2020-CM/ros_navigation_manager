@@ -62,7 +62,9 @@ class Door:
         The verification of the direction is to be added later
 
         :param path: path on which to verify if there is a door
+        :type path: Pose
         :param distance_treshold: distance
+        :type distance_treshold: int
 
         :return: list containing a Door if the door is on the path
                  or nothing if there is no door
@@ -70,7 +72,7 @@ class Door:
         """
         cls = type(self)
 
-        for pose in path:
+        for pose in path.poses:
             path_x, path_y = pose.pose.position.x, pose.pose.position.y
             door_x = self.interest_point.pose.position.x
             door_y = self.interest_point.pose.position.y
