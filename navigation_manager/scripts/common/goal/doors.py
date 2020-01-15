@@ -70,7 +70,7 @@ class Door:
                  or nothing if there is no door
         :rtype: list<Door>
         """
-        cls = type(self)
+        cls = Door
 
         for pose in path.poses:
             path_x, path_y = pose.pose.position.x, pose.pose.position.y
