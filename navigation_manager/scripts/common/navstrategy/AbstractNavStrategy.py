@@ -19,7 +19,7 @@ class AbstractNavStrategy:
 
 
     @abstractmethod
-    def goto(self, sourcePose, targetPose): pass
+    def goto(self, sourcePose, targetPose, type): pass
 
     @abstractmethod
     def stopAll(self): pass
@@ -32,7 +32,7 @@ class AbstractNavStrategy:
         timeout=tOut
         self._t_timer = Timer(timeout, self._timeout_checker)
         self._t_timer.start()
-    
+
     def reset(self):
         self._retry_nb=0
         self._timeout_checker=False
