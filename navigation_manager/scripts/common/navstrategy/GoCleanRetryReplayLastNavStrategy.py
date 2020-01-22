@@ -106,27 +106,22 @@ class GoCleanRetryReplayLastNavStrategy(AbstractNavStrategy):
         self.left_laser_range = msg.ranges[:10]
 
     def pass_through_door(self, targetPose):
-        r = rospy.Rate(10)
-
         # First rotation (90)
         twist = Twist()
         twist.angular.z = 0.2
         target_rad = self.yaw + math.pi / 2
-        rospy.loginfo("Start 1st rotation")
         while abs(target_rad - self.yaw) > 0.1:
             self._twist_pub.publish(twist)
-            r.sleep()
         twist.angular.z = 0
-        self._twist_pub.publish(twist)
-        rospy.loginfo("End 1st rotation")
 
         # Translation
         twist.linear.y = -0.1
-        target_y = self.odom_pose.position.y + 0.5
-        rospy.loginfo("Start translation")
+        target_y = self.odom_pose.position.y - 0.5
+        translation_time = rospy.Time.now() + rospy.Duration.from_sec(10)
         rotation_time = rospy.Time.now() + rospy.Duration.from_sec(0.5)
-        while (abs(self.odom_pose.position.y - target_y) > 0.1):
-            rospy.loginfo(str(abs(self.odom_pose.position.y - target_y) > 0.1))
+        #while (abs(self.odom_pose.position.y - target_y) > 0.1):
+        #TODO fix odometry, was behaving strangely
+        while rospy.Time.now() < translation_time:
             laser_range = deepcopy(self.left_laser_range)
             while len([r for r in laser_range if r < 0.7]) > 2:
                 # Stop if something is in the way
@@ -152,20 +147,16 @@ class GoCleanRetryReplayLastNavStrategy(AbstractNavStrategy):
             self._twist_pub.publish(twist)
         twist.linear.y = 0
         self._twist_pub.publish(twist)
-        rospy.loginfo('End translation')
 
         # Second rotation (90)
         twist.angular.z = -0.2
         target_rad = self.yaw - math.pi / 2
-        rospy.loginfo("Start 2nd rotation")
         while abs(target_rad - self.yaw) > 0.1:
             self._twist_pub.publish(twist)
-            r.sleep()
         twist.angular.z = 0
         safety_time = rospy.Time.now() + rospy.Duration.from_sec(1)
         while rospy.Time.now() < safety_time:
             self._twist_pub.publish(twist)
-        rospy.loginfo("End 2nd rotation")
 
     def goto(self, sourcePose, targetPose, type=""):
         ##NEED TO Make stuff into another thread
